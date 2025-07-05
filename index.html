@@ -8,6 +8,7 @@
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/727/727399.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css" rel="stylesheet">
     <style>
         :root {
             --cor-vinho: #5D1A2A;
@@ -86,7 +87,8 @@
         td .actions { display: flex; gap: .5rem; }
         td .actions button { background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--muted-text); padding: .3rem; transition: color var(--transition); }
         td .actions button:hover { color: var(--accent); }
-        .badge { display: inline-block; padding: .3rem .8rem; border-radius: 99px; font-size: .8rem; font-weight: 600; color: var(--cor-texto-escuro); text-align: center; }
+        .badge { display: inline-block; padding: .3rem .8rem; border-radius: 99px;
+            font-size: .8rem; font-weight: 600; color: var(--cor-texto-escuro); text-align: center; }
         .badge.Ativo, .badge.Agendado { background: var(--accent); }
         .badge.Concluído, .badge.Concluída, .badge.Realizado, .badge.Pago { background: var(--success); color: var(--white); }
         .badge.Arquivado, .badge.Cancelado { background: var(--muted-text); color: var(--white); }
@@ -115,6 +117,108 @@
         .cliente-card h3 { font-size: 1.4rem; color: var(--main); margin-bottom: 1rem; border-bottom: 2px solid var(--cor-dourado); padding-bottom: .5rem; }
         .spinner { width: 50px; height: 50px; border: 5px solid rgba(0, 0, 0, 0.1); border-left-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 4rem auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem; }
+        .calendar-container { background: var(--cor-bege-claro); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); }
+        /* Estilos para o FullCalendar */
+        .fc .fc-button {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: var(--cor-texto-escuro);
+            text-transform: capitalize; /* Garante que o texto dos botões seja capitalizado */
+        }
+        .fc .fc-button:hover {
+            background-color: var(--cor-dourado-hover);
+            border-color: var(--cor-dourado-hover);
+        }
+        .fc .fc-button-primary:not(:disabled).fc-button-active {
+            background-color: var(--main);
+            border-color: var(--main);
+            color: var(--white); /* Cor do texto para o botão ativo */
+        }
+        .fc .fc-toolbar-title {
+            color: var(--dark-text);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .fc .fc-col-header-cell-cushion {
+            color: var(--main);
+            font-weight: 600;
+            padding: .5rem 0; /* Espaçamento para os dias da semana */
+        }
+        .fc .fc-daygrid-day-number {
+            color: var(--dark-text);
+            font-weight: 500;
+            padding: .2rem .4rem;
+        }
+        .fc .fc-daygrid-day.fc-day-today {
+            background-color: var(--accent-light); /* Cor de fundo para o dia atual */
+            border-radius: .5rem;
+        }
+        .fc .fc-event {
+            background-color: var(--main);
+            border-color: var(--main);
+            border-radius: .3rem;
+            padding: .2rem .4rem;
+            margin-bottom: 3px; /* Aumenta um pouco o espaçamento entre eventos empilhados */
+            font-size: .85rem;
+            color: var(--white);
+            cursor: pointer;
+        }
+        .fc .fc-event-title {
+            color: var(--white);
+            font-size: .85rem;
+        }
+        .fc-event-time {
+            font-weight: 600;
+        }
+        .fc-daygrid-event-dot { border-color: var(--white); }
+
+        .fc .fc-event.status-agendado { background-color: var(--accent); border-color: var(--accent); }
+        .fc .fc-event.status-realizado { background-color: var(--success); border-color: var(--success); }
+        .fc .fc-event.status-cancelado { background-color: var(--danger); border-color: var(--danger); }
+        .fc .fc-event.status-pendente { background-color: var(--warning); border-color: var(--warning); }
+
+        /* Responsividade para o calendário */
+        @media (max-width: 768px) {
+            .fc .fc-toolbar-title {
+                font-size: 1.2rem;
+            }
+            .fc .fc-button-group {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .fc .fc-button {
+                margin: .2rem;
+                padding: .4rem .8rem;
+            }
+            .fc-daygrid-day-number {
+                font-size: .8rem;
+            }
+            .fc .fc-event {
+                font-size: .75rem;
+                padding: .1rem .3rem;
+            }
+        }
+
+        /* Otimização do layout do dashboard-grid */
+        .dashboard-grid {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Ajuste para telas menores */
+        }
+
+        @media(max-width: 800px) {
+            .filter-bar, .section-header { flex-direction: column; padding: 1rem; align-items: stretch; }
+            nav { justify-content: flex-start; }
+            .container { padding: 1.5rem 1rem; }
+            .modal { padding: 1.5rem; }
+            .table-wrapper { box-shadow: none; }
+            table { box-shadow: var(--shadow); }
+            thead { display: none; }
+            tr { display: block; margin-bottom: 1rem; border-radius: .8rem; overflow: hidden; box-shadow: var(--shadow); background: var(--cor-bege-claro); }
+            td { display: block; text-align: right; position: relative; padding-left: 50%; border: none; border-bottom: 1px solid var(--border); }
+            td:before { content: attr(data-label); position: absolute; left: 1rem; width: calc(50% - 2rem); text-align: left; font-weight: 600; color: var(--main); }
+            td:last-child { border-bottom: none; }
+        }
         @media(max-width: 800px) {
             .filter-bar, .section-header { flex-direction: column; padding: 1rem; align-items: stretch; }
             nav { justify-content: flex-start; }
@@ -136,9 +240,11 @@
     <div id="login-panel">
         <h2><i class="fa-solid fa-scale-balanced"></i> Login do Advogado</h2>
         <div class="form-group">
+            <label for="login-email">E-mail</label>
             <input id="login-email" type="email" placeholder="E-mail" required>
         </div>
         <div class="form-group">
+            <label for="login-senha">Senha</label>
             <input id="login-senha" type="password" placeholder="Senha" required>
         </div>
         <button id="btnLogin" class="btn" style="width: 100%;">Entrar</button>
@@ -159,8 +265,7 @@
                 <button id="nav4" onclick="abrirTab(4)"><i class="fa fa-calendar-alt"></i> Agenda</button>
                 <button id="nav5" onclick="abrirTab(5)"><i class="fa fa-tasks"></i> Tarefas</button>
                 <button id="nav6" onclick="abrirTab(6)"><i class="fa fa-hand-holding-dollar"></i> Financeiro</button>
-                <button id="nav7" onclick="abrirTab(7)"><i class="fa fa-file-alt"></i> Relatórios</button>
-                <button id="nav8" onclick="abrirTab(8)"><i class="fa fa-users"></i> Casos por Clientes</button>
+                <button id="nav7" onclick="abrirTab(7)"><i class="fa fa-users"></i> Casos por Clientes</button>
             </nav>
             <button id="btnLogout" class="btn" style="background: #fff1f3; color:#d43c5e;">Sair <i class="fa fa-sign-out-alt"></i></button>
         </header>
@@ -171,10 +276,13 @@
             <!-- TAB: PAINEL GERAL -->
             <div class="tab-content active" id="tab0">
                 <div class="section-header"><h2>Visão Geral</h2></div>
-                <div id="painel-cards"></div>
-                <div class="chart-container"><canvas id="chart-overview"></canvas></div>
-                <h3>Prazos Críticos Próximos</h3>
-                <div id="painel-prazos"></div>
+                <div class="dashboard-grid">
+                    <div class="card"><i class="icon fa fa-users"></i><div class="value" id="total-clientes">0</div><div class="label">Total de Clientes</div></div>
+                    <div class="card"><i class="icon fa fa-briefcase"></i><div class="value" id="casos-ativos">0</div><div class="label">Casos Ativos</div></div>
+                </div>
+                <div class="calendar-container">
+                    <div id="calendar"></div>
+                </div>
             </div>
 
             <!-- TAB: CASOS -->
@@ -269,15 +377,10 @@
                 <div class="table-wrapper" id="tabela-financeiro"></div>
             </div>
 
-            <!-- TAB: RELATÓRIOS -->
-            <div class="tab-content" id="tab7">
-                <div class="section-header"><h2>Relatórios & Métricas</h2></div>
-                <div class="chart-container"><canvas id="chart-relatorio"></canvas></div>
-                <button class="btn btn-info" onclick="exportarDados('fin')"><i class="fa fa-file-csv"></i> Exportar Financeiro (CSV)</button>
-            </div>
+            
 
             <!-- TAB: CASOS POR CLIENTE -->
-            <div class="tab-content" id="tab8">
+            <div class="tab-content" id="tab7">
                 <div class="section-header"><h2>Casos por Cliente</h2></div>
                 <div class="filter-bar">
                     <input id="buscar-casos-por-cliente" type="text" placeholder="Buscar por nome do cliente..." onkeyup="renderCasosPorCliente()">
@@ -335,7 +438,7 @@
             <div class="form-group"><label for="evento-cliente">Vincular ao Cliente</label><select id="evento-cliente" onchange="populateSelect('evento-caso', 'casos', 'id', 'numero', `cliente_id.eq.${this.value}`, 'Nenhum')"></select></div>
             <div class="form-group"><label for="evento-caso">Vincular ao Caso</label><select id="evento-caso"></select></div>
             <div class="form-group"><label for="evento-status">Status</label><select id="evento-status"><option>Agendado</option><option>Realizado</option><option>Cancelado</option></select></div>
-            <div class="form-group"><label for="evento-desc">Descrição</label><textarea id="evento-descricao" rows="3"></textarea></div>
+            <div class="form-group"><label for="evento-descricao">Descrição</label><textarea id="evento-descricao" rows="3"></textarea></div>
             <div class="modal-footer"><button type="submit" class="btn btn-success"><i class="fa fa-save"></i> Salvar</button></div>
         </form>
     </div></div>
@@ -355,7 +458,7 @@
         <div class="modal-header"><h3 id="fin-titulo">Novo Lançamento</h3><button class="close-modal" onclick="fecharModal('modal-fin')">&times;</button></div>
         <form onsubmit="salvarFin(event);">
             <input type="hidden" id="fin-id"><input type="hidden" id="fin-tipo">
-            <div class="form-group"><label for="fin-desc">Descrição *</label><input id="fin-descricao" type="text" required></div>
+            <div class="form-group"><label for="fin-descricao">Descrição *</label><input id="fin-descricao" type="text" required></div>
             <div class="form-group"><label for="fin-categoria">Categoria *</label><select id="fin-categoria" required><option>Honorários</option><option>Custas Processuais</option><option>Acordo</option><option>Serviços de Terceiros</option><option>Despesas Gerais</option><option>Outra</option></select></div>
             <div class="form-group"><label for="fin-valor">Valor (R$) *</label><input id="fin-valor" type="number" step="0.01" placeholder="Ex: 1500.50" required></div>
             <div class="form-group"><label for="fin-data">Data *</label><input id="fin-data" type="date" required></div>
@@ -368,6 +471,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
     <script>
         // =================================================================================
         // PAINEL JURÍDICO - SCRIPT COMPLETO (Versão Supabase) - SPINNERS
@@ -429,29 +533,73 @@
         /* ------------- FUNÇÕES DE RENDERIZAÇÃO (COM SPINNERS) ------------- */
         
         async function loadDashboard() {
-            $('#painel-cards').innerHTML = SPINNER_HTML;
-            $('#painel-prazos').innerHTML = SPINNER_HTML;
-            const { data: counts, error: countsError } = await sb.rpc('get_dashboard_counts');
-            if (countsError) console.error('Erro ao buscar contagens do painel:', countsError);
+            $('#total-clientes').innerHTML = SPINNER_HTML;
+            $('#casos-ativos').innerHTML = SPINNER_HTML;
 
-            $('#painel-cards').innerHTML = `
-                <div class="card"><i class="icon fa fa-briefcase"></i><div class="value">${counts?.casos_ativos || 0}</div><div class="label">Casos Ativos</div></div>
-                <div class="card"><i class="icon fa fa-users"></i><div class="value">${counts?.total_clientes || 0}</div><div class="label">Total de Clientes</div></div>
-                <div class="card"><i class="icon fa fa-calendar-day"></i><div class="value">${counts?.prazos_hoje || 0}</div><div class="label">Prazos para Hoje</div></div>
-                <div class="card"><i class="icon fa fa-tasks"></i><div class="value">${counts?.tarefas_pendentes || 0}</div><div class="label">Tarefas Pendentes</div></div>
-            `;
-            
-            const { data: prazos } = await sb.from('agenda').select('titulo, datahora').eq('status', 'Agendado').gte('datahora', new Date().toISOString()).order('datahora').limit(5);
-            $('#painel-prazos').innerHTML = prazos && prazos.length ? `<ul>${prazos.map(p => `<li><strong>${p.titulo}</strong> <span>${fmtDateTime(p.datahora)}</span></li>`).join('')}</ul>` : "<p>Nenhum prazo futuro encontrado.</p>";
-            
-            const { data: faturamento, error: fatError } = await sb.rpc('get_relatorio_financeiro');
-            if(fatError) console.error("Erro ao buscar dados do gráfico:", fatError);
+            const { count: totalClientes, error: clientesError } = await sb.from('clientes').select('id', { count: 'exact', head: true });
+            if (clientesError) console.error('Erro ao buscar total de clientes:', clientesError);
+            $('#total-clientes').innerText = totalClientes || 0;
 
-            const labels = faturamento ? faturamento.map(r => r.mes) : [];
-            const data = faturamento ? faturamento.map(r => r.receitas) : [];
-            const ctx = $('#chart-overview').getContext('2d');
-            if (overviewChart) overviewChart.destroy();
-            overviewChart = new Chart(ctx, { type: 'line', data: { labels, datasets: [{ label: 'Faturamento Mensal', data, backgroundColor: 'rgba(99, 102, 241, 0.2)', borderColor: 'rgba(99, 102, 241, 1)', borderWidth: 2, tension: 0.4, fill: true }] } });
+            const { count: casosAtivos, error: casosError } = await sb.from('casos').select('id', { count: 'exact', head: true }).eq('status', 'Ativo');
+            if (casosError) console.error('Erro ao buscar casos ativos:', casosError);
+            $('#casos-ativos').innerText = casosAtivos || 0;
+
+            // FullCalendar
+            const calendarEl = $('#calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'pt-br',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                eventOrder: 'start,title', // Ordena eventos por data/hora de início e depois por título
+                events: async (fetchInfo, successCallback, failureCallback) => {
+                    const { data: agendaData, error: agendaError } = await sb.from('agenda').select('id, titulo, datahora, tipo_evento, status');
+                    const { data: tarefasData, error: tarefasError } = await sb.from('tarefas').select('id, descricao, prazo_data, status');
+
+                    if (agendaError) {
+                        console.error('Erro ao buscar eventos da agenda:', agendaError);
+                        failureCallback(agendaError);
+                    }
+                    if (tarefasError) {
+                        console.error('Erro ao buscar tarefas:', tarefasError);
+                        failureCallback(tarefasError);
+                    }
+
+                    const events = agendaData.map(event => ({
+                        id: event.id,
+                        title: event.titulo,
+                        start: event.datahora,
+                        allDay: event.tipo_evento === 'Prazo Processual',
+                        extendedProps: { type: 'agenda' },
+                        classNames: [`status-${event.status.toLowerCase()}`] // Adiciona a classe de status
+                    }));
+
+                    tarefasData.forEach(tarefa => {
+                        if (tarefa.prazo_data) {
+                            events.push({
+                                id: tarefa.id,
+                                title: `Tarefa: ${tarefa.descricao}`,
+                                start: tarefa.prazo_data,
+                                allDay: true,
+                                extendedProps: { type: 'tarefa' },
+                                classNames: [`status-${tarefa.status.toLowerCase()}`] // Adiciona a classe de status
+                            });
+                        }
+                    });
+                    successCallback(events);
+                },
+                eventClick: function(info) {
+                    if (info.event.extendedProps.type === 'agenda') {
+                        abrirModalEvento(info.event.id);
+                    } else if (info.event.extendedProps.type === 'tarefa') {
+                        abrirModalTarefa(info.event.id);
+                    }
+                }
+            });
+            calendar.render();
         }
 
         async function renderCasos() {
@@ -699,7 +847,7 @@
         }
 
         /* ------------- LISTA DE FUNÇÕES DE RENDERIZAÇÃO ------------- */
-        const renderFunctions = [loadDashboard, renderCasos, renderClientes, renderDocumentos, renderAgenda, renderTarefas, loadFinanceiro, loadRelatorios, renderCasosPorCliente];
+        const renderFunctions = [loadDashboard, renderCasos, renderClientes, renderDocumentos, renderAgenda, renderTarefas, loadFinanceiro, renderCasosPorCliente];
 
         /* ------------- UI & NAVEGAÇÃO ------------- */
         function abrirTab(index) {
@@ -889,8 +1037,11 @@
         }
 
         async function abrirModalEvento(id = null) {
-            $('#modal-evento form').reset();
-            $('#evento-id').value = '';
+            if (!id) {
+                $('#modal-evento form').reset();
+                $('#evento-id').value = '';
+                $('#evento-modal-titulo').innerText = 'Novo Evento / Prazo';
+            }
             await populateSelect('evento-cliente', 'clientes', 'id', 'nome', '', 'Nenhum');
             $('#evento-caso').innerHTML = '<option value="">Nenhum</option>';
             if (id) {
@@ -908,8 +1059,6 @@
                     await populateSelect('evento-cliente', 'clientes', 'id', 'nome', '', 'Nenhum', r.cliente_id);
                     await populateSelect('evento-caso', 'casos', 'id', 'numero', `cliente_id.eq.${r.cliente_id}`, 'Nenhum', r.caso_id);
                 }
-            } else {
-                $('#evento-modal-titulo').innerText = 'Novo Evento / Prazo';
             }
             $('#modal-evento').classList.add('active');
         }
@@ -943,8 +1092,11 @@
         }
 
         async function abrirModalTarefa(id = null) {
-            $('#modal-tarefa form').reset();
-            $('#tarefa-id').value = '';
+            if (!id) {
+                $('#modal-tarefa form').reset();
+                $('#tarefa-id').value = '';
+                $('#tarefa-modal-titulo').innerText = 'Nova Tarefa';
+            }
             await populateSelect('tarefa-cliente', 'clientes', 'id', 'nome', '', 'Nenhum');
             $('#tarefa-caso').innerHTML = '<option value="">Nenhum</option>';
             if (id) {
@@ -959,8 +1111,6 @@
                     await populateSelect('tarefa-cliente', 'clientes', 'id', 'nome', '', 'Nenhum', r.cliente_id);
                     await populateSelect('tarefa-caso', 'casos', 'id', 'numero', `cliente_id.eq.${r.cliente_id}`, 'Nenhum', r.caso_id);
                 }
-            } else {
-                $('#tarefa-modal-titulo').innerText = 'Nova Tarefa';
             }
             $('#modal-tarefa').classList.add('active');
         }
